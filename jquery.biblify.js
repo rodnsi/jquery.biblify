@@ -80,6 +80,12 @@
 
 			function getTextNodes(node) {
 				
+				// If the node is a link, skip it. We don't wan to start creating links
+				// within links. TODO: should be able to pass an array of tags to ignore.
+				if (node.tagName === 'A' || node.tagName === 'a') {
+					return;
+				}
+					
 				if (node.nodeType === 3) {
 					if (node.length > 0 && nonWhitespaceMatcher.test(node.nodeValue)) {
 						
@@ -94,8 +100,10 @@
 						}
 					}
 				} else {
+					
 					var replacements = [];
 					for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+						
 						var replacement = getTextNodes(node.childNodes[i]);
 						if (replacement) {
 							
