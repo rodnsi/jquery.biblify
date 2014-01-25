@@ -23,50 +23,127 @@
 		options.tooltip.verseplural = options.tooltip.verseplural || ' verses ';
 		options.tooltip.range = options.tooltip.range || ' to ';
 		
-        var regex = /(<=^|[ ]*)((1[ ]*[cjkpst]|2[ ]*[cjkpst]|3[ ]*j|a[cm]|co|d[ae]|e[cpsxz]|g[ae]|h[aeo]|is|j[aeou]|l[aekuv]|m[ai]|n[aeu]|ob|p[hrs]|r[eou]|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-z]{0,12})([ ]*)([0-9])+[,v\.\-: ]*([0-9]+)[,\- ]*([0-9]*)|([0-9])/ig;
+		var regex = /(<=^|[ ]*)((1[ ]*[cjkpst]|2[ ]*[cjkpst]|3[ ]*j|a[cm]|co|d[ae]|e[cpsxz]|g[ae]|h[aeo]|is|j[aeou]|l[aekuv]|m[ai]|n[aeu]|ob|p[hrs]|r[eou]|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-z]{0,12})([ ]*)([0-9]+)([,v\.\-: ]*)([0-9]+)([,\- ]*)([0-9]*)|([0-9])/ig;
+		
+		function fixup(text) {
+			var m = regex.exec(text);
 
-        return this.each( function() {
-            var content = $(this).html();
-
-            var m = regex.exec(content);
-
-            if (m != null) {
-				$(this).html(content.replace(regex,
-						function ($1, $2, $3, $4, $5, $6, $7, $8) {
-							var spacer = $2;
+			if (m != null) {
+				return text.replace(regex,
+						function ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) {
+							var spacer = ($2 === undefined) ? '': $2;
 							var book = $3;
 							var chapter = $6;
-							var versestart = $7;
-							var verseend = $8;
+							var versestart = $8;
+							var verseend = $10;
+							var endspacer = '';
 							
-							var urlref, textref, displayref = '';
-							
-							if (book && chapter) {
+							if (book !== undefined && chapter !== undefined && versestart !== undefined)
+							{
+								var urlref, textref, displayref = '';
+								
 								urlref = book + options.url.chapter + chapter;
 								displayref = book + options.display.chapter + chapter;
 								textref = book + options.tooltip.chapter + chapter;
-							}
-							if (versestart && verseend) {
-								urlref += options.url.verse + versestart + options.url.range + verseend;
-								displayref += options.display.verseplural + versestart + options.display.range + verseend;
-								textref += options.tooltip.verseplural + versestart + options.tooltip.range + verseend;
-							}
-							else if (versestart)
-							{
-								urlref += options.url.verse + versestart;
-								displayref += options.display.verse + versestart
-								textref += options.tooltip.verse + versestart;
+								
+								if (versestart && verseend) {
+									urlref += options.url.verse + versestart + options.url.range + verseend;
+									displayref += options.display.verseplural + versestart + options.display.range + verseend;
+									textref += options.tooltip.verseplural + versestart + options.tooltip.range + verseend;
+								}
+								else if (versestart)
+								{
+									urlref += options.url.verse + versestart;
+									displayref += options.display.verse + versestart;
+									textref += options.tooltip.verse + versestart;
+									endspacer = $9;
+								}
+								
+								urlref = encodeURI(urlref);
+								
+								var content = options.content.replace('{url}', urlref).replace('{tooltip}', textref).replace('{display}', displayref) + endspacer;
+								
+								return spacer + content;
 							}
 							
-							urlref = encodeURI(urlref);
-							
-							var content = options.content.replace('{url}', urlref).replace('{tooltip}', textref).replace('{display}', displayref);
-							
-							return spacer + content;
+							return $1;
 						}
-					));
-            }
-        });
-    }
+					);
+			}
+			
+			return false;
+			
+		}
+		
+		function getTextNodesIn(node, includeWhitespaceNodes) {
+			var textNodes = [], nonWhitespaceMatcher = /\S/;
+
+			function getTextNodes(node) {
+				
+				if (node.nodeType == 3) {
+					if (node.length > 0 && nonWhitespaceMatcher.test(node.nodeValue)) {
+						
+						var html = fixup(node.nodeValue);
+						if (html !== undefined && html)
+						{
+							return { node: node, markup: html };
+						}
+					}
+				} else {
+					var replacements = [];
+					for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+						var replacement = getTextNodes(node.childNodes[i]);
+						if (replacement) {
+							if (node.childNodes.length == 1)
+							{
+								replacement.type = 'all';
+								replacement.editNode = node;
+								replacements.push(replacement);
+							}
+							else if (i > 0)
+							{
+								replacement.type = 'after';
+								replacement.editNode = node.childNodes[i-1];
+								replacements.push(replacement);
+							}
+							else if (i < node.childNodes.length - 1)
+							{
+								replacement.type = 'before';
+								replacement.editNode = node.childNodes[i+1];
+								replacements.push(replacement);
+							}
+							
+						}
+					}
+					
+					if (replacements.length > 0) {
+						for (var i = 0; i<replacements.length; i++) {
+							switch (replacements[i].type)
+							{
+								case 'all':
+									replacements[i].editNode.innerHTML = replacements[i].markup;
+									break;
+								case 'after':
+									replacements[i].editNode.insertAdjacentHTML('afterend', replacements[i].markup);
+									replacements[i].node.remove();
+									break;
+								case 'before':
+									replacements[i].editNode.insertAdjacentHTML('beforebegin', replacements[i].markup);
+									replacements[i].node.remove();
+									break;
+							}
+						}
+					}
+				}
+			}
+
+			getTextNodes(node);
+		}
+		
+        
+        	return this.each( function() {
+        		getTextNodesIn(this);
+        	});
+	}
 
 }(jQuery));
