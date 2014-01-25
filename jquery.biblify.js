@@ -28,7 +28,7 @@
 		function fixup(text) {
 			var m = regex.exec(text);
 
-			if (m != null) {
+			if (m !== null) {
 				return text.replace(regex,
 						function ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) {
 							var spacer = ($2 === undefined) ? '': $2;
@@ -80,12 +80,16 @@
 
 			function getTextNodes(node) {
 				
-				if (node.nodeType == 3) {
+				if (node.nodeType === 3) {
 					if (node.length > 0 && nonWhitespaceMatcher.test(node.nodeValue)) {
 						
 						var html = fixup(node.nodeValue);
 						if (html !== undefined && html)
 						{
+							// If it's a text node with a Bible reference, return the node and the markup
+							// we intend to replace it with. This will later be appended with data about
+							// how to insert the HTML (complicated, because we're in a text node, not a
+							// DOM element).
 							return { node: node, markup: html };
 						}
 					}
@@ -94,20 +98,28 @@
 					for (var i = 0, len = node.childNodes.length; i < len; ++i) {
 						var replacement = getTextNodes(node.childNodes[i]);
 						if (replacement) {
-							if (node.childNodes.length == 1)
+							
+							// If we were returned a replacement operation, we need to figure out
+							// how to switch out the text node for HTML.
+							if (node.childNodes.length === 1)
 							{
+								// We're swapping the whole element content (easy!)
 								replacement.type = 'all';
 								replacement.editNode = node;
 								replacements.push(replacement);
 							}
 							else if (i > 0)
 							{
+								// There's a previous sibling element, so we can use it with
+								// an insert-after operation, then clear the original text node.
 								replacement.type = 'after';
 								replacement.editNode = node.childNodes[i-1];
 								replacements.push(replacement);
 							}
 							else if (i < node.childNodes.length - 1)
 							{
+								// There's a subsequent sibling element which we can use with an
+								// insert-before operation and clearing the original node.
 								replacement.type = 'before';
 								replacement.editNode = node.childNodes[i+1];
 								replacements.push(replacement);
@@ -116,20 +128,24 @@
 						}
 					}
 					
+					// Loop through the cached operations. These couldn't have been done 
+					// inline because we'd be changing the DOM elements that we were recursing
+					// through. Switch on the appropriate operation, and update markup.
 					if (replacements.length > 0) {
-						for (var i = 0; i<replacements.length; i++) {
-							switch (replacements[i].type)
+						for (var j = 0; j<replacements.length; j++) {
+							switch (replacements[j].type)
 							{
 								case 'all':
-									replacements[i].editNode.innerHTML = replacements[i].markup;
+									replacements[j].editNode.insertAdjacentHTML('afterbegin', replacements[j].markup);
+									replacements[j].node.remove();
 									break;
 								case 'after':
-									replacements[i].editNode.insertAdjacentHTML('afterend', replacements[i].markup);
-									replacements[i].node.remove();
+									replacements[j].editNode.insertAdjacentHTML('afterend', replacements[j].markup);
+									replacements[j].node.remove();
 									break;
 								case 'before':
-									replacements[i].editNode.insertAdjacentHTML('beforebegin', replacements[i].markup);
-									replacements[i].node.remove();
+									replacements[j].editNode.insertAdjacentHTML('beforebegin', replacements[j].markup);
+									replacements[j].node.remove();
 									break;
 							}
 						}
@@ -140,10 +156,9 @@
 			getTextNodes(node);
 		}
 		
-        
-        	return this.each( function() {
-        		getTextNodesIn(this);
-        	});
-	}
+		return this.each( function() {
+				getTextNodesIn(this);
+			});
+	};
 
 }(jQuery));
