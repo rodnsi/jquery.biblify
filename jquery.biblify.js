@@ -75,6 +75,15 @@
 			
 		}
 		
+		function removeNode(node) {
+			if (node.remove) {
+				node.remove();
+			}
+			else if (node.removeNode) {
+				node.removeNode();
+			}
+		}
+		
 		function getTextNodesIn(node, includeWhitespaceNodes) {
 			var textNodes = [], nonWhitespaceMatcher = /\S/;
 
@@ -145,15 +154,15 @@
 							{
 								case 'all':
 									replacements[j].editNode.insertAdjacentHTML('afterbegin', replacements[j].markup);
-									replacements[j].node.remove();
+									removeNode(replacements[j].node);
 									break;
 								case 'after':
 									replacements[j].editNode.insertAdjacentHTML('afterend', replacements[j].markup);
-									replacements[j].node.remove();
+									removeNode(replacements[j].node);
 									break;
 								case 'before':
 									replacements[j].editNode.insertAdjacentHTML('beforebegin', replacements[j].markup);
-									replacements[j].node.remove();
+									removeNode(replacements[j].node);
 									break;
 							}
 						}
