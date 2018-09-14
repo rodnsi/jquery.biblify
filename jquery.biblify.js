@@ -23,7 +23,7 @@
 		options.tooltip.verseplural = options.tooltip.verseplural || ' verses ';
 		options.tooltip.range = options.tooltip.range || ' to ';
 		
-		var regex = /(<=^|[ ]*)((1[ ]*[cjkpst]|2[ ]*[cjkpst]|3[ ]*j|a[cm]|co|d[ae]|e[cpsxz]|g[ae]|h[aeo]|is|j[aeou]|l[aekuv]|m[ai]|n[aeu]|ob|p[hrs]|r[eou]|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-z]{0,12})([ ]*)([0-9]+)([,v\.\-: ]*)([0-9]+)([,\- ]*)([0-9]*)|([0-9])/ig;
+		var regex = /(<=^|[ ]*)((1[ ]*[cjkpst]|2[ ]*[cjkpst]|3[ ]*j|a[cm]|co|d[ae]|e[cpsxz]|g[ae]|h[aeo]|is|j[aeou]|l[aekuv]|m[ai]|n[aeu]|ob|p[hrs]|r[eou]|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-z]{0,12})([ ]*)([0-9]+)([,v\.\-: ]+)([0-9]+)([,\- ]*)([0-9]*)|([0-9])/ig;
 		
 		function fixup(text) {
 			var m = regex.exec(text);
