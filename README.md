@@ -42,17 +42,18 @@ You can modify the behaviour of the `biblify` operation by passing different opt
   $("blockquote").biblify(options);
 ```
 
-There are three tokens that can be used in the content tag. Each represents a different format of the Bible reference.
+There are four tokens that can be used in the content tag. Each represents a different format of the Bible reference.
 
   1. `{url}` Will be replaced by the Bible reference following "URL" formatting options.
   2. `{tooltip}` will be replaced by more verbose tooltip formatting options.
   3. `{display}` will be replaced by a reformatted reference formatting options intended to be displayed to the end user.
+  4. `{version}` Will be replaced by the wanted Bible version.
  
 These would typically be used together to wrap Bible references in a hyperlink:  
 
 ```javascript
   var options = {
-    content: '<a href="http://site?ref={url}" title="{tooltip}">{display}</a>'
+    content: '<a href="http://site?ref={url}&ver={version}" title="{tooltip}">{display}</a>'
   };
   
   $("#main p").biblify(options);
@@ -62,10 +63,13 @@ By default the plugin will create hyperlinks to [BibleGateway.com](http://www.bi
 
 ```javascript
   var options = {
-    content: '<a class="bible" href="http://www.biblegateway.com/passage/?version=AKJV&search={url}" title="{tooltip}" target="_blank">{display}</a>',
+    content: '<a class="bible" href="http://www.biblegateway.com/passage/?version={version}&search={url}" title="{tooltip}" target="_blank">{display}</a>',
     
+      // Default bible version
+      version: 'AKJV',
+
       // Default single verse URL format: "[BOOK][CHAPTER]:[VERSE]"
-      // Default single verse URL format: "[BOOK][CHAPTER]:[VERSE]-[VERSE]"
+      // Default verse range URL format: "[BOOK][CHAPTER]:[VERSE]-[VERSE]"
       url: {
         chapter: '',
         verse: ':',

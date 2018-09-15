@@ -7,6 +7,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_ and `Keep A 
 Unreleased_
 -----------
 
+0.3.0_ - 2018-09-15
+-------------------
+Added
+~~~~~~~
+  - New option available: 'version'. This option allows to choose a version of the Bible.
+
 0.2.0_ - 2018-09-14
 -------------------
 Added

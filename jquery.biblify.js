@@ -3,7 +3,7 @@
     $.fn.biblify = function(options) {
 
 		options = options || {};
-		options.content = options.content || '<a class="bible" href="http://www.biblegateway.com/passage/?version=AKJV&search={url}" title="Read {tooltip} on BibleGateway.com" target="_blank">{display}</a>';
+		options.content = options.content || '<a class="bible" href="http://www.biblegateway.com/passage/?version={version}&search={url}" title="Read {tooltip} on BibleGateway.com" target="_blank">{display}</a>';
 		
 		options.url = options.url || {};
 		options.url.href = options.url.href || '';
@@ -23,6 +23,8 @@
 		options.tooltip.verseplural = options.tooltip.verseplural || ' verses ';
 		options.tooltip.range = options.tooltip.range || ' to ';
 		
+		options.version = options.version || 'AKJV';
+
 		var regex = /(<=^|[ ]*)((1[ ]*[cjkprst]|2[ ]*[cjkprst]|3[ ]*j|a[bgcmp]|co|cantiques?[ ]+des[ ]+|d[ae]|e[cpsxz]|g[ae]|h[aeoé]|is|j[aeoué]|l[aekuvé]|m[ai]|n[aeoué]|o[b|s]|p[hirs]|r[eou]|so|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-zéèëï]{0,14})([ ]*)([0-9]+)([,v\.\-: ]+)([0-9]+)([,\- ]*)([0-9]*)|([0-9])/ig;
 		
 		function fixup(text) {
@@ -40,12 +42,12 @@
 							
 							if (book !== undefined && chapter !== undefined && versestart !== undefined)
 							{
-								var urlref, textref, displayref = '';
+								var urlref, textref, displayref, version = '';
 								
 								urlref = book + options.url.chapter + chapter;
 								displayref = book + options.display.chapter + chapter;
 								textref = book + options.tooltip.chapter + chapter;
-								
+								version = options.version;
 								if (versestart && verseend) {
 									urlref += options.url.verse + versestart + options.url.range + verseend;
 									displayref += options.display.verseplural + versestart + options.display.range + verseend;
@@ -61,7 +63,7 @@
 								
 								urlref = encodeURI(urlref.toLowerCase().replace('é', 'e').replace('è', 'e').replace('ë', 'e').replace('ï', 'i'));
 								
-								var content = options.content.replace('{url}', urlref).replace('{tooltip}', textref).replace('{display}', displayref) + endspacer;
+								var content = options.content.replace('{url}', urlref).replace('{tooltip}', textref).replace('{display}', displayref).replace('{version}', version) + endspacer;
 								
 								return spacer + content;
 							}
