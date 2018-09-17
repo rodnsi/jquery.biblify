@@ -25,7 +25,7 @@
 		
 		options.version = options.version || 'AKJV';
 
-		var regex = /(<=^|[ ]*)((1[ ]*[cjkprst]|2[ ]*[cjkprst]|3[ ]*j|a[bgcmp]|co|cantiques?[ ]+des[ ]+|d[ae]|e[cpsxz]|g[ae]|h[aeoé]|is|j[aeoué]|l[aekuvé]|m[ai]|n[aeoué]|o[b|s]|p[hirs]|r[eou]|so|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-zéèëï]{0,14})([ ]*)([0-9]+)([,v\.\-: ]+)([0-9]+)([,\- ]*)([0-9]*)|([0-9])/ig;
+		var regex = /(<=^|[ ]*)((1[ ]*[cjkprst]|2[ ]*[cjkprst]|3[ ]*j|a[bgcmp]|co|cantiques?[ ]+des[ ]+|d[ae]|e[cpsxz]|g[ae]|h[aeoé]|is|j[aeoué]|l[aekuvé]|m[ai]|n[aeoué]|o[b|s]|p[hirs]|r[eou]|sop|song[ ]*[o]?[f]?[ ]*|ti|z[ae])[a-zéèëï]{0,14})([ ]*)([0-9]+)([,v\.\-: ]+)([0-9]+)([,\- ]*)([0-9]*)|([0-9])/ig;
 		
 		function fixup(text) {
 			var m = regex.exec(text);
